@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RapidCare — Emergency Ambulance System</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Clash+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+
+</head>
+
+<body>
+    <!-- TOASTER -->
+    <div id="toaster"></div>
+    <!--how it works-->
+    <div id="pg-how" class="page">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <div class="brand-icon">🚑</div>
+                RapidCare
+            </div>
+
+            <button class="nav-cta" onclick="goPage('pg-land')">← Back</button>
+        </nav>
+
+        <div class="container" style="margin-top:100px;">
+
+            <h1 class="sec-title" style="font-size:2rem;">How RapidCare Works</h1>
+
+            <div class="card" style="margin-top:20px;">
+                <h3>🚨 Step 1: Emergency Trigger</h3>
+                <p>User presses SOS or logs in to request help.</p>
+            </div>
+
+            <div class="card">
+                <h3>📍 Step 2: Location Detection</h3>
+                <p>System uses GPS to detect your real-time location.</p>
+            </div>
+
+            <div class="card">
+                <h3>🏥 Step 3: Hospital Matching</h3>
+                <p>Nearby hospitals are fetched using OpenStreetMap APIs.</p>
+            </div>
+
+            <div class="card">
+                <h3>🚑 Step 4: Ambulance Booking</h3>
+                <p>User selects ambulance based on ETA, type, and rating.</p>
+            </div>
+
+            <div class="card">
+                <h3>🗺️ Step 5: Live Tracking</h3>
+                <p>Ambulance is tracked in real-time using maps.</p>
+            </div>
+
+            <div class="card">
+                <h3>🏁 Step 6: Hospital Arrival</h3>
+                <p>Patient reaches hospital safely and request is completed.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     LANDING
+══════════════════════════════════════════ -->
+    <div id="pg-land" class="page active">
+        <!-- Fixed navbar -->
+        <nav class="navbar" id="main-navbar">
+            <div class="nav-brand">
+                <div class="brand-icon">🚑</div>
+                RapidCare
+            </div>
+            <div class="nav-links">
+                <button class="nav-link" onclick="goPage('pg-how')">How It Works</button>
+
+            </div>
+            <button class="nav-mobile-btn" onclick="this.textContent=this.textContent==='☰'?'✕':'☰'">☰</button>
+        </nav>
+
+        <section class="land-hero">
+            <div class="land-particles"></div>
+            <div class="land-grid"></div>
+            <div class="hero-badge"><span class="hb-dot"></span>Emergency Network Online • 24/7 Active</div>
+            <h1 class="hero-h1">Save Lives with<br><span class="accent">Instant Dispatch</span></h1>
+            <p class="hero-sub">Real-time ambulance booking connecting patients, hospitals &amp; drivers in seconds.
+                Every second counts.</p>
+            <div class="role-grid">
+                <div class="role-card"
+                    style="--rc-color:#FF2D2D;--rc-glow:rgba(255,45,45,.07);--rc-bg:rgba(255,45,45,.1);--rc-border:rgba(255,45,45,.2);"
+                    onclick="goPage('pg-auth-user')">
+                    <div class="rc-badge">🆘</div>
+                    <div class="rc-title">I Need Help</div>
+                    <div class="rc-desc">Patient or emergency caller. Request ambulance instantly with live tracking.
+                    </div>
+                    <div class="rc-arrow">Patient Login →</div>
+                </div>
+                <div class="role-card"
+                    style="--rc-color:#3B82F6;--rc-glow:rgba(59,130,246,.07);--rc-bg:rgba(59,130,246,.1);--rc-border:rgba(59,130,246,.2);"
+                    onclick="goPage('pg-auth-hospital')">
+                    <div class="rc-badge">🏥</div>
+                    <div class="rc-title">Hospital</div>
+                    <div class="rc-desc">Manage ambulance fleet, dispatch units &amp; track all active emergencies.
+                    </div>
+                    <div class="rc-arrow">Hospital Login →</div>
+                </div>
+                <div class="role-card"
+                    style="--rc-color:#00D97E;--rc-glow:rgba(0,217,126,.07);--rc-bg:rgba(0,217,126,.1);--rc-border:rgba(0,217,126,.2);"
+                    onclick="goPage('pg-auth-driver')">
+                    <div class="rc-badge">🚑</div>
+                    <div class="rc-title">Driver</div>
+                    <div class="rc-desc">Ambulance driver. Go on-duty, accept missions, navigate with live maps.</div>
+                    <div class="rc-arrow">Driver Login →</div>
+                </div>
+            </div>
+        </section>
+
+
+        <footer>
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="fb-logo"><span>🚑</span>RapidCare</div>
+                    <p>India's most trusted real-time ambulance dispatch platform. Connecting lives to care when every
+                        second matters most.</p>
+                    <div class="footer-socials">
+                        <button class="footer-social-btn" onclick="toast('Social links coming soon','info')">𝕏</button>
+                        <button class="footer-social-btn" onclick="toast('Social links coming soon','info')">in</button>
+                        <button class="footer-social-btn" onclick="toast('Social links coming soon','info')">f</button>
+                        <button class="footer-social-btn" onclick="toast('Social links coming soon','info')">📷</button>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a>Emergency Dispatch</a></li>
+                        <li><a>Live Ambulance Tracking</a></li>
+                        <li><a>Hospital Dashboard</a></li>
+                        <li><a>Driver Management</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a>How It Works</a></li>
+                        <li><a>System Overview</a></li>
+                        <li><a>Technology Stack</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a>Contact Us</a></li>
+                        <li><a>FAQs</a></li>
+                        <li><a>Emergency: 112</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2025 RapidCare Technologies Pvt. Ltd. All rights reserved.</span>
+                <div style="display:flex;gap:20px;"><a>Privacy</a><a>Terms</a><a>Cookies</a></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     USER AUTH
+══════════════════════════════════════════ -->
+    <div id="pg-auth-user" class="page">
+        <div class="auth-page" style="--auth-glow:rgba(255,45,45,.08);">
+            <div class="auth-box">
+                <button class="auth-back" onclick="goPage('pg-land')">← Back to Home</button>
+                <div class="auth-icon" style="background:rgba(255,45,45,.12);">🆘</div>
+                <h2>Patient Portal</h2>
+                <p class="asub">Sign in or create an account to request emergency care</p>
+                <div class="tabbar2" id="utabs">
+                    <button class="tab2 active" onclick="uTab('login',this)">Sign In</button>
+                    <button class="tab2" onclick="uTab('register',this)">Register</button>
+                </div>
+                <!-- LOGIN -->
+                <div id="ulogin">
+                    <div class="or-divider">Sign in with your register Id</div>
+                    <div class="fg"><label>Email</label><input type="email" id="ue" placeholder="you@email.com"
+                            style="--input-focus:#FF2D2D;--input-glow:rgba(255,45,45,.12);"></div>
+                    <div class="fg"><label>Password</label><input type="password" id="up" placeholder="••••••••"
+                            style="--input-focus:#FF2D2D;--input-glow:rgba(255,45,45,.12);"></div>
+                    <button class="btn-auth btn-red" onclick="loginUser()">Sign In →</button>
+                </div>
+                <!-- REGISTER -->
+                <div id="ureg" style="display:none;">
+                    <div class="or-divider">register with email Id</div>
+                    <div class="fgrow">
+                        <div class="fg"><label>First Name</label><input type="text" id="rfn"
+                                style="--input-focus:#FF2D2D;--input-glow:rgba(255,45,45,.12);"></div>
+                        <div class="fg"><label>Last Name</label><input type="text" id="rln"></div>
+                    </div>
+                    <div class="fg"><label>Email</label><input type="email" id="re"
+                            style="--input-focus:#FF2D2D;--input-glow:rgba(255,45,45,.12);"></div>
+                    <div class="fg"><label>Phone</label><input type="tel" id="rph"></div>
+                    <div class="fgrow">
+                        <div class="fg"><label>Password</label><input type="password" id="rp" placeholder="Min 6 chars">
+                        </div>
+                        <div class="fg"><label>Confirm</label><input type="password" id="rp2" placeholder="Repeat">
+                        </div>
+                    </div>
+                    <div class="fg"><label>Blood Group</label><select id="rbl">
+                            <option>A+</option>
+                            <option>A-</option>
+                            <option>B+</option>
+                            <option>B-</option>
+                            <option>AB+</option>
+                            <option>AB-</option>
+                            <option>O+</option>
+                            <option>O-</option>
+                        </select></div>
+                    <button class="btn-auth btn-red" onclick="registerUser()">Create Account →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     HOSPITAL AUTH
+══════════════════════════════════════════ -->
+    <div id="pg-auth-hospital" class="page">
+        <div class="auth-page" style="--auth-glow:rgba(59,130,246,.07);">
+            <div class="auth-box">
+                <button class="auth-back" onclick="goPage('pg-land')">← Back to Home</button>
+                <div class="auth-icon" style="background:rgba(59,130,246,.12);">🏥</div>
+                <h2>Hospital Portal</h2>
+                <p class="asub">Sign in or register your hospital to manage dispatch</p>
+                <div class="tabbar2" id="htabs">
+                    <button class="tab2 active" onclick="hAuthTab('hlogin',this)">Sign In</button>
+                    <button class="tab2" onclick="hAuthTab('hreg',this)">Register Hospital</button>
+                </div>
+                <div id="hlogin">
+
+                    <div class="fg"><label>Email</label><input type="email" id="he" placeholder="Enter email"
+                            style="--input-focus:#3B82F6;--input-glow:rgba(59,130,246,.12);"></div>
+                    <div class="fg"><label>Password</label><input type="password" id="hp" placeholder="Enter password"
+                            style="--input-focus:#3B82F6;--input-glow:rgba(59,130,246,.12);"></div>
+                    <button class="btn-auth btn-blue" onclick="loginHospital()">Sign In →</button>
+                </div>
+                <div id="hreg" style="display:none;">
+                    <div class="fg"><label>Hospital Name</label><input type="text" id="hname_reg"
+                            placeholder="Enter hospital name"
+                            style="--input-focus:#3B82F6;--input-glow:rgba(59,130,246,.12);"></div>
+                    <div class="fg"><label>Email</label><input type="email" id="hreg_email" placeholder="enter email"
+                            style="--input-focus:#3B82F6;--input-glow:rgba(59,130,246,.12);"></div>
+                    <div class="fg"><label>Phone</label><input type="tel" id="hreg_phone" placeholder="enter number">
+                    </div>
+                    <div class="fg"><label>Address / Location</label><input type="text" id="hreg_addr"
+                            placeholder="enter address"
+                            style="--input-focus:#3B82F6;--input-glow:rgba(59,130,246,.12);"></div>
+                    <div class="fgrow">
+                        <div class="fg"><label>City</label><input type="text" id="hreg_city" placeholder="enter city">
+                        </div>
+                        <div class="fg"><label>State</label><input type="text" id="hreg_state"
+                                placeholder="enter state">
+                        </div>
+                    </div>
+                    <div class="fg"><label>Registration No.</label><input type="text" id="hreg_regno"
+                            placeholder="enter registration number"></div>
+                    <div class="fgrow">
+                        <div class="fg"><label>Password</label><input type="password" id="hreg_pass"
+                                placeholder="Min 6 chars"></div>
+                        <div class="fg"><label>Confirm</label><input type="password" id="hreg_pass2"
+                                placeholder="Repeat"></div>
+                    </div>
+                    <button class="btn-auth btn-blue" onclick="registerHospital()">Register Hospital →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     DRIVER AUTH
+══════════════════════════════════════════ -->
+    <div id="pg-auth-driver" class="page">
+        <div class="auth-page" style="--auth-glow:rgba(0,217,126,.06);">
+            <div class="auth-box">
+                <button class="auth-back" onclick="goPage('pg-land')">← Back to Home</button>
+                <div class="auth-icon" style="background:rgba(0,217,126,.1);">🚑</div>
+                <h2>Driver Login</h2>
+                <p class="asub">Sign in to go on-duty and receive emergency missions</p>
+                <div class="fg"><label>Driver ID / Email</label><input type="email" id="de" placeholder="Enter email"
+                        style="--input-focus:#00D97E;--input-glow:rgba(0,217,126,.12);"></div>
+                <div class="fg"><label>Password</label><input type="password" id="dp" placeholder="Enter password"
+                        style="--input-focus:#00D97E;--input-glow:rgba(0,217,126,.12);"></div>
+                <button class="btn-auth btn-green" onclick="loginDriver()">Sign In as Driver →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     USER DASHBOARD
+══════════════════════════════════════════ -->
+    <div id="pg-user" class="page">
+        <nav class="appnav">
+            <div class="appnav-brand">
+                <div class="dot" style="background:var(--red);"></div>RapidCare
+            </div>
+            <div class="appnav-center">
+                <div class="live-badge"><span class="ld"></span>Live Network</div>
+            </div>
+            <div class="appnav-right">
+                <div class="nav-user-info">
+                    <div class="nav-avatar" style="background:rgba(255,45,45,.15);">👤</div><span
+                        id="uname">Patient</span>
+                </div>
+                <button class="nav-signout" onclick="logout()">Sign Out</button>
+            </div>
+        </nav>
+        <div class="main-content">
+            <!-- IDLE STATE -->
+            <div id="u-idle">
+                <div class="sos-section">
+                    <h2 style="font-weight:800;font-size:1.5rem;letter-spacing:-.02em;">Emergency Response</h2>
+                    <p style="color:var(--text2);font-size:.9rem;margin-top:8px;text-align:center;">Your location will
+                        be detected &amp; nearest hospitals fetched automatically</p>
+                    <div class="sos-container">
+                        <div class="sos-ring"></div>
+                        <div class="sos-ring"></div>
+                        <div class="sos-ring"></div>
+                        <button class="sos-btn" onclick="triggerSOS()">
+                            <div class="s-emoji">🆘</div>
+                            <div class="s-text">SOS</div>
+                            <div class="s-hint">TAP FOR HELP</div>
+                        </button>
+                    </div>
+                    <p style="color:var(--text3);font-size:.78rem;">🔒 Location is only shared during active emergencies
+                    </p>
+                </div>
+                <div class="container" style="padding-top:0;">
+                    <div class="stat-grid">
+                        <div class="stat-card" style="--sc-color:var(--blue)">
+                            <div class="stat-ico">🏥</div>
+                            <div class="stat-val" id="nhc-count" style="color:var(--blue);">—</div>
+                            <div class="stat-lbl">Nearby Hospitals</div>
+                        </div>
+                        <div class="stat-card" style="--sc-color:var(--green)">
+                            <div class="stat-ico">🚑</div>
+                            <div class="stat-val" style="color:var(--green);">12</div>
+                            <div class="stat-lbl">Available Units</div>
+                        </div>
+                        <div class="stat-card" style="--sc-color:var(--amber)">
+                            <div class="stat-ico">⚡</div>
+                            <div class="stat-val" style="color:var(--amber);">~4m</div>
+                            <div class="stat-lbl">Avg Response</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-ico">⭐</div>
+                            <div class="stat-val">4.9</div>
+                            <div class="stat-lbl">Service Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- SCANNING STATE -->
+            <div id="u-scan" style="display:none;">
+                <div class="alert-bar red"><span class="ab-icon">🚨</span>
+                    <div>
+                        <div class="ab-title">Emergency Alert Sent</div>
+                        <div class="ab-sub" id="scan-txt">Detecting your precise location...</div>
+                    </div>
+                    <div class="ab-right"><button class="bsm gh" onclick="cancelSOS()">Cancel</button></div>
+                </div>
+                <div class="container">
+                    <div class="map-wrap" style="height:320px;margin-bottom:22px;">
+                        <div id="umap" style="height:320px;"></div>
+                        <div class="map-panel" id="umap-panel"><strong id="ump-title">🔍 Scanning</strong>
+                            <div class="mp-detail" id="ump-detail">Locating you...</div>
+                        </div>
+                    </div>
+                    <div id="hosp-sel-section" style="display:none;">
+                        <div class="sec-head">
+                            <div class="sec-title">Select Hospital &amp; Ambulance</div>
+                            <div class="live-badge"><span class="ld"></span>Real Hospitals</div>
+                        </div>
+                        <div id="hosp-list"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- TRACKING STATE -->
+            <div id="u-track" style="display:none;">
+                <div class="alert-bar green"><span class="ab-icon">✅</span>
+                    <div>
+                        <div class="ab-title" id="trk-title">Ambulance Confirmed!</div>
+                        <div class="ab-sub" id="trk-sub">On the way...</div>
+                    </div>
+                    <div class="ab-right">
+                        <div class="badge bd-green" id="trk-eta-badge" style="font-size:.8rem;"></div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="card" style="margin-bottom:20px;">
+                        <div class="sec-head">
+                            <div class="sec-title">Live Tracking</div><span id="trip-badge" class="badge bd-green">En
+                                Route</span>
+                        </div>
+                        <div class="tbar" id="utracker">
+                            <div class="tstep done">
+                                <div class="tdot">✓</div>
+                                <div class="tlbl">Requested</div>
+                            </div>
+                            <div class="tstep done">
+                                <div class="tdot">✓</div>
+                                <div class="tlbl">Confirmed</div>
+                            </div>
+                            <div class="tstep active">
+                                <div class="tdot">🚑</div>
+                                <div class="tlbl">En Route</div>
+                            </div>
+                            <div class="tstep">
+                                <div class="tdot">4</div>
+                                <div class="tlbl">Arrived</div>
+                            </div>
+                            <div class="tstep">
+                                <div class="tdot">5</div>
+                                <div class="tlbl">Hospital</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="map-wrap" style="height:340px;margin-bottom:20px;">
+                        <div id="trkmap" style="height:340px;"></div>
+                        <div class="map-panel"><strong id="trk-amb-id">AMB-001</strong>
+                            <div class="mp-detail" id="trk-eta-text">Calculating route...</div>
+                            <div class="map-eta-chip" id="trk-dist-chip" style="display:none;">📍 <span
+                                    id="trk-dist-val">—</span></div>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-bottom:16px;">
+                        <div class="sec-title" style="margin-bottom:16px;">Driver Details</div>
+                        <div class="pg-grid">
+                            <div class="pgi"><span>Driver</span><strong id="td-name">—</strong></div>
+                            <div class="pgi"><span>Vehicle</span><strong id="td-veh">—</strong></div>
+                            <div class="pgi"><span>Phone</span><strong id="td-ph">—</strong></div>
+                            <div class="pgi"><span>ETA</span><strong id="td-eta" style="color:var(--green);">—</strong>
+                            </div>
+                        </div>
+                        <div class="btn-row" style="margin-top:16px;">
+                            <button class="bsm acc" onclick="callDriver()">📞 Call Driver</button>
+                            <button class="bsm gh" onclick="shareLocation()">📍 Share Location</button>
+                        </div>
+                    </div>
+                    <div class="card" id="rate-card" style="display:none;">
+                        <div class="sec-title" style="margin-bottom:12px;">Rate Your Experience</div>
+                        <div class="stars" id="starrow"><span class="star" data-v="1">★</span><span class="star"
+                                data-v="2">★</span><span class="star" data-v="3">★</span><span class="star"
+                                data-v="4">★</span><span class="star" data-v="5">★</span></div>
+                        <textarea placeholder="Share your experience..." rows="3" id="ratecomment"
+                            style="background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;width:100%;margin-bottom:12px;outline:none;resize:vertical;"></textarea>
+                        <button class="btn-auth btn-red" style="max-width:200px;" onclick="submitRating()">Submit
+                            Rating</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- FOOTER for user page -->
+        <footer style="padding:28px 40px;">
+            <div
+                style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:.8rem;color:var(--text3);">
+                <span>© 2025 RapidCare Technologies</span>
+                <span>Emergency Helpline: <strong style="color:var(--red);">112</strong></span>
+                <span>support@rapidcare.in</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     HOSPITAL DASHBOARD
+══════════════════════════════════════════ -->
+    <div id="pg-hospital" class="page">
+        <nav class="appnav">
+            <div class="appnav-brand">
+                <div class="dot" style="background:var(--blue);"></div>RapidCare
+            </div>
+            <div class="appnav-center">
+                <div class="role-pill" style="background:rgba(59,130,246,.12);color:var(--blue);">🏥 <span
+                        id="h-display-name">Hospital</span></div>
+            </div>
+            <div class="appnav-right">
+                <div class="nav-notif" id="h-notif" style="display:none;"><span>🔔</span>
+                    <div class="notif-dot"></div>
+                </div>
+                <button class="nav-signout" onclick="logout()">Sign Out</button>
+            </div>
+        </nav>
+        <div class="main-content">
+            <div class="container">
+                <div class="stat-grid">
+                    <div class="stat-card" style="--sc-color:var(--red)">
+                        <div class="stat-ico">🚨</div>
+                        <div class="stat-val" id="hsa" style="color:var(--red);">0</div>
+                        <div class="stat-lbl">Active Requests</div>
+                    </div>
+                    <div class="stat-card" style="--sc-color:var(--green)">
+                        <div class="stat-ico">🚑</div>
+                        <div class="stat-val" id="hsav" style="color:var(--green);">8</div>
+                        <div class="stat-lbl">Available Units</div>
+                    </div>
+                    <div class="stat-card" style="--sc-color:var(--amber)">
+                        <div class="stat-ico">🔄</div>
+                        <div class="stat-val" id="hsd" style="color:var(--amber);">3</div>
+                        <div class="stat-lbl">Dispatched</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-ico">✅</div>
+                        <div class="stat-val" id="hsc">47</div>
+                        <div class="stat-lbl">Done Today</div>
+                    </div>
+                </div>
+                <div class="tabbar">
+                    <button class="tab active" onclick="htab('req',this)">🚨 Requests</button>
+                    <button class="tab" onclick="htab('fleet',this)">🚑 Fleet</button>
+                    <button class="tab" onclick="htab('drivers',this)">👤 Drivers</button>
+                    <button class="tab" onclick="htab('track',this)">📍 Live Track</button>
+                    <button class="tab" onclick="htab('stats',this)">📊 Analytics</button>
+                </div>
+                <!-- REQUESTS TAB -->
+                <div id="ht-req">
+                    <div id="lreqs">
+                        <div class="empty-st">
+                            <div class="ei">📭</div>
+                            <p>No active requests. System listening for emergencies...</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- FLEET TAB -->
+                <div id="ht-fleet" style="display:none;">
+                    <div class="form-section">
+                        <h3>➕ Add Ambulance Unit</h3>
+                        <div class="fgrow">
+                            <div class="fg"><label>Unit ID</label><input type="text" id="fl-id" placeholder="AMB-013">
+                            </div>
+                            <div class="fg"><label>Type</label><select id="fl-type">
+                                    <option>ALS Advanced</option>
+                                    <option>BLS Basic</option>
+                                    <option>ICU Mobile</option>
+                                    <option>Neonatal</option>
+                                </select></div>
+                        </div>
+                        <div class="fgrow">
+                            <div class="fg"><label>Assign Driver</label><input type="text" id="fl-drv"
+                                    placeholder="Driver name"></div>
+                            <div class="fg"><label>Reg. Number</label><input type="text" id="fl-reg"
+                                    placeholder="MH-01-AB-0013"></div>
+                        </div>
+                        <button class="btn-auth btn-blue" style="max-width:200px;padding:12px;" onclick="addFleet()">Add
+                            Unit</button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px;"
+                        id="fleet-cards"></div>
+                </div>
+                <!-- DRIVERS TAB -->
+                <div id="ht-drivers" style="display:none;">
+                    <div class="form-section">
+                        <h3>➕ Register Driver</h3>
+                        <div class="fgrow">
+                            <div class="fg"><label>Full Name</label><input type="text" id="dr-n"
+                                    placeholder="Raj Kumar"></div>
+                            <div class="fg"><label>Phone</label><input type="tel" id="dr-ph"
+                                    placeholder="+91 98765 43210"></div>
+                        </div>
+                        <div class="fgrow">
+                            <div class="fg"><label>License No.</label><input type="text" id="dr-lic"
+                                    placeholder="DL-1234567890123"></div>
+                            <div class="fg"><label>Assign Vehicle</label><input type="text" id="dr-veh"
+                                    placeholder="AMB-001"></div>
+                        </div>
+                        <button class="btn-auth btn-blue" style="max-width:220px;padding:12px;"
+                            onclick="addDriver()">Register Driver</button>
+                    </div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Vehicle</th>
+                                    <th>Status</th>
+                                    <th>Trips</th>
+                                </tr>
+                            </thead>
+                            <tbody id="drv-table">
+                                <tr>
+                                    <td><strong>Raj Kumar</strong></td>
+                                    <td>+91 98765 43210</td>
+                                    <td>AMB-001</td>
+                                    <td><span class="badge bd-green">On Duty</span></td>
+                                    <td>7</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Priya Sharma</strong></td>
+                                    <td>+91 98001 11111</td>
+                                    <td>AMB-003</td>
+                                    <td><span class="badge bd-blue">Dispatched</span></td>
+                                    <td>5</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Amit Singh</strong></td>
+                                    <td>+91 98001 22222</td>
+                                    <td>AMB-007</td>
+                                    <td><span class="badge bd-green">On Duty</span></td>
+                                    <td>9</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- LIVE TRACK TAB -->
+                <div id="ht-track" style="display:none;">
+                    <div class="sec-head">
+                        <div class="sec-title">Live Fleet Tracking</div>
+                        <div class="live-badge"><span class="ld"></span>Real-Time</div>
+                    </div>
+                    <div class="map-wrap" style="height:420px;margin-bottom:20px;">
+                        <div id="hmap" style="height:420px;"></div>
+                    </div>
+                    <div id="hmap-list">
+                        <div class="empty-st">
+                            <div class="ei">🗺️</div>
+                            <p>Dispatched units appear here</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- ANALYTICS TAB -->
+                <div id="ht-stats" style="display:none;">
+                    <div class="stat-grid">
+                        <div class="stat-card" style="--sc-color:var(--green)">
+                            <div class="stat-lbl">Avg Response Time</div>
+                            <div class="stat-val" style="color:var(--green);">3m 42s</div>
+                        </div>
+                        <div class="stat-card" style="--sc-color:var(--blue)">
+                            <div class="stat-lbl">Success Rate</div>
+                            <div class="stat-val" style="color:var(--blue);">98.7%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-lbl">Requests Today</div>
+                            <div class="stat-val">52</div>
+                        </div>
+                        <div class="stat-card" style="--sc-color:var(--amber)">
+                            <div class="stat-lbl">Avg Rating</div>
+                            <div class="stat-val" style="color:var(--amber);">4.9 ⭐</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="sec-title" style="margin-bottom:20px;">Case Priority Breakdown</div>
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                            <div>
+                                <div
+                                    style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:6px;">
+                                    <span>Critical</span><strong style="color:var(--red);">12%</strong>
+                                </div>
+                                <div class="prog-bar">
+                                    <div class="prog-fill" style="width:12%;background:var(--red);"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div
+                                    style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:6px;">
+                                    <span>Urgent</span><strong style="color:var(--amber);">35%</strong>
+                                </div>
+                                <div class="prog-bar">
+                                    <div class="prog-fill" style="width:35%;background:var(--amber);"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div
+                                    style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:6px;">
+                                    <span>Normal</span><strong style="color:var(--green);">53%</strong>
+                                </div>
+                                <div class="prog-bar">
+                                    <div class="prog-fill" style="width:53%;background:var(--green);"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer style="padding:28px 40px;border-top:1px solid var(--border);">
+            <div
+                style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:.8rem;color:var(--text3);">
+                <span>© 2025 RapidCare Technologies</span><span>Hospital Admin Portal</span><span>Emergency: <strong
+                        style="color:var(--red);">112</strong></span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     DRIVER DASHBOARD
+══════════════════════════════════════════ -->
+    <div id="pg-driver" class="page">
+        <nav class="appnav">
+            <div class="appnav-brand">
+                <div class="dot" style="background:var(--green);"></div>RapidCare
+            </div>
+            <div class="appnav-center">
+                <div class="tog-wrap">
+                    <label class="tog"><input type="checkbox" id="duty-tog" checked onchange="toggleDuty(this)"><span
+                            class="tog-sl"></span></label>
+                    <span id="duty-lbl" style="font-size:.85rem;font-weight:600;color:var(--green);">On Duty</span>
+                </div>
+            </div>
+            <div class="appnav-right">
+                <div class="nav-user-info">
+                    <div class="nav-avatar" style="background:rgba(0,217,126,.12);">🚑</div><span>Raj Kumar</span>
+                </div>
+                <button class="nav-signout" onclick="logout()">Sign Out</button>
+            </div>
+        </nav>
+        <div class="main-content">
+            <div class="container">
+                <div class="stat-grid">
+                    <div class="stat-card" style="--sc-color:var(--green)">
+                        <div class="stat-ico">✅</div>
+                        <div class="stat-val" id="d-trips" style="color:var(--green);">7</div>
+                        <div class="stat-lbl">Trips Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-ico">⭐</div>
+                        <div class="stat-val">4.9</div>
+                        <div class="stat-lbl">Rating</div>
+                    </div>
+                    <div class="stat-card" style="--sc-color:var(--blue)">
+                        <div class="stat-ico">🕐</div>
+                        <div class="stat-val" style="color:var(--blue);">6.5h</div>
+                        <div class="stat-lbl">Online</div>
+                    </div>
+                    <div class="stat-card" style="--sc-color:var(--amber)">
+                        <div class="stat-ico">📍</div>
+                        <div class="stat-val" style="color:var(--amber);">48km</div>
+                        <div class="stat-lbl">Distance</div>
+                    </div>
+                </div>
+                <!-- INCOMING MISSION -->
+                <div id="d-incoming" style="display:none;">
+                    <div class="mission-card urgent">
+                        <div class="mc-head">
+                            <div>
+                                <div class="mc-title" id="mi-id">#EM-0000</div>
+                                <div class="mc-time">Received just now</div>
+                            </div><span class="badge bd-red">🚨 INCOMING</span>
+                        </div>
+                        <div class="pg-grid">
+                            <div class="pgi"><span>Patient</span><strong id="mi-pat">—</strong></div>
+                            <div class="pgi"><span>Emergency</span><strong id="mi-emg"
+                                    style="color:var(--red);">—</strong></div>
+                            <div class="pgi"><span>Pickup</span><strong id="mi-pkp">—</strong></div>
+                            <div class="pgi"><span>Hospital</span><strong id="mi-hosp">—</strong></div>
+                        </div>
+                        <div class="btn-row"><button class="bsm acc" onclick="acceptMission()">✅ Accept
+                                Mission</button><button class="bsm dng" onclick="declineMission()">✕ Decline</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- ACTIVE TRIP -->
+                <div id="d-active" style="display:none;">
+                    <div class="mission-card active">
+                        <div class="mc-head">
+                            <div>
+                                <div class="mc-title" id="at-id">Active Trip</div>
+                            </div><span id="at-badge" class="badge bd-blue">En Route to Patient</span>
+                        </div>
+                        <div class="pg-grid">
+                            <div class="pgi"><span>Patient</span><strong id="at-pat">—</strong></div>
+                            <div class="pgi"><span>Emergency</span><strong id="at-emg"
+                                    style="color:var(--red);">—</strong></div>
+                        </div>
+                        <div class="tbar" id="dtracker">
+                            <div class="tstep done">
+                                <div class="tdot">✓</div>
+                                <div class="tlbl">Accepted</div>
+                            </div>
+                            <div class="tstep active" id="ds2">
+                                <div class="tdot">🚑</div>
+                                <div class="tlbl">To Patient</div>
+                            </div>
+                            <div class="tstep" id="ds3">
+                                <div class="tdot">3</div>
+                                <div class="tlbl">Pickup</div>
+                            </div>
+                            <div class="tstep" id="ds4">
+                                <div class="tdot">4</div>
+                                <div class="tlbl">To Hospital</div>
+                            </div>
+                            <div class="tstep" id="ds5">
+                                <div class="tdot">5</div>
+                                <div class="tlbl">Done</div>
+                            </div>
+                        </div>
+                        <div class="btn-row" style="margin-top:16px;" id="trip-act">
+                            <button class="bsm acc" id="nxt-btn" onclick="nextStep()">Arrived at Patient →</button>
+                            <button class="bsm gh" onclick="callPatient()">📞 Call Patient</button>
+                        </div>
+                    </div>
+                    <div class="sec-head" style="margin-top:22px;">
+                        <div class="sec-title">Navigation Map</div>
+                        <div class="live-badge"><span class="ld"></span>OSRM Routing</div>
+                    </div>
+                    <div class="map-wrap" style="height:360px;margin-bottom:20px;">
+                        <div id="dmap" style="height:360px;"></div>
+                        <div class="map-panel"><strong id="nav-dest">→ Patient Pickup</strong>
+                            <div class="mp-detail" id="nav-eta">Calculating route...</div>
+                            <div class="map-eta-chip" id="nav-dist-chip" style="display:none;">📏 <span
+                                    id="nav-dist">—</span></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- NO MISSION -->
+                <div id="d-none">
+                    <div class="empty-st">
+                        <div class="ei">📡</div>
+                        <div style="font-weight:700;margin-bottom:8px;font-size:1rem;">Waiting for dispatch...</div>
+                        <p>Stay on duty — you'll be notified when a nearby emergency is assigned to you</p>
+                    </div>
+                </div>
+                <div style="height:1px;background:var(--border);margin:24px 0;"></div>
+                <div class="sec-title" style="margin-bottom:16px;">Recent Trips</div>
+                <div class="tbl-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Route</th>
+                                <th>Time</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#EM-2841</strong></td>
+                                <td>K. Sharma</td>
+                                <td>Sector 8 → City General</td>
+                                <td>45m ago</td>
+                                <td>⭐⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr>
+                                <td><strong>#EM-2835</strong></td>
+                                <td>P. Gupta</td>
+                                <td>MG Road → Metro Med</td>
+                                <td>2h ago</td>
+                                <td>⭐⭐⭐⭐</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <footer style="padding:28px 40px;border-top:1px solid var(--border);">
+            <div
+                style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:.8rem;color:var(--text3);">
+                <span>© 2025 RapidCare Technologies</span><span>Driver Portal v3.0</span><span>Emergency: <strong
+                        style="color:var(--red);">112</strong></span>
+            </div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
